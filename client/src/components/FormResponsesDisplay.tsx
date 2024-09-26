@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Api } from '../utils/api';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
+import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer and toast
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS for toast
 
 interface ResponseData {
   _id: string;
@@ -37,9 +39,10 @@ const FormResponsesDisplay = () => {
 
   const handleCopyLink = (url: string) => {
     navigator.clipboard.writeText(url).then(() => {
-      alert('Link copied to clipboard!');
+      toast.success('Link copied to clipboard!'); // Show success toast
     }).catch(err => {
       console.error('Failed to copy: ', err);
+      toast.error('Failed to copy link!'); // Show error toast if copy fails
     });
   };
 
@@ -89,6 +92,7 @@ const FormResponsesDisplay = () => {
           </div>
         )}
       </div>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick={false} rtl={false} pauseOnFocusLoss draggable pauseOnHover /> {/* Add ToastContainer */}
     </>
   );
 };

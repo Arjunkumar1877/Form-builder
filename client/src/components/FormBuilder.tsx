@@ -190,29 +190,34 @@ const FormBuilder: React.FC = () => {
           </>
         )}
 
-        <button
-          onClick={handleAddField}
-          className="w-full px-6 py-3 mt-4 bg-black text-white font-semibold rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {editFieldId ? 'Update Field' : 'Add Field'}
-        </button>
+<div className='w-full flex justify-end'>
+
+<button
+  onClick={handleAddField}
+  className="w-1/6  px-6 py-3 mt-4 bg-black text-white text-sm font-semibold rounded-3xl hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+>
+  {editFieldId ? 'Update Field' : 'Add Field'}
+</button>
+</div>
       </div>
 
       {fields.map((field) => (
         <div key={field.id} className="mb-6 relative p-4 bg-gray-50 rounded-lg border border-gray-300">
           <label className="block text-lg font-semibold mb-2">{field.label} {field.required && <span className="text-red-500">*</span>}</label>
+   
           <button
             onClick={() => handleEditField(field.id)}
-            className="absolute right-4 top-4 bg-yellow-500 text-white px-2 py-1 rounded-lg hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            className="absolute right-4 top-4  text-black font-semibold px-2 py-1 rounded-lg hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
           >
             Edit
           </button>
           <button
             onClick={() => handleDeleteField(field.id)}
-            className="absolute right-20 top-4 bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="absolute right-20 top-4 font-semibold text-red-500 px-2 py-1 rounded-lg hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
           >
             Delete
           </button>
+
           {field.type === 'text' && (
             <input
               type="text"

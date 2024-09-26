@@ -132,17 +132,16 @@ const FormList = () => {
               key={form._id}
               className="mb-6 p-4 bg-gradient-to-r from-blue-100 to-blue-200 rounded-lg border border-gray-300 shadow-md hover:shadow-lg transition-shadow duration-300"
             >
-              <h3 className="text-2xl font-semibold mb-4 text-gray-800">{form.title}</h3>
-              <ul className="mb-4">
+              <h3 className="text-2xl font-semibold mb-4 text-gray-800">{form.title.toUpperCase()}</h3>
+              <ul className="mb-4 list-disc list-inside">
                 {form.fields.map((field) => (
                   <li key={field.id} className="mb-2 text-gray-700">
-                    <strong>{field.label}</strong>: {field.type}
+                    <strong>{field.label.toUpperCase()}</strong>: {field.type}
                     {field.options && field.options.length > 0 && (
-                      <span className="ml-2 text-sm text-gray-600">
+                      <span className="ml-2 text-sm text-gray-800">
                         (Options: {field.options.join(', ')})
                       </span>
                     )}
-                    {field.required && <span className="text-red-500"> *Required</span>}
                   </li>
                 ))}
               </ul>
