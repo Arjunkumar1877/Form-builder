@@ -17,7 +17,10 @@ interface FormDisplayProps {
   fields: Field[];
 }
 
-const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields }) => {
+
+
+
+const Form: React.FC<FormDisplayProps> = ({ title, fields }) => {
   const [formValues, setFormValues] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -172,4 +175,4 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields }) => {
   );
 };
 
-export default FormDisplay;
+export default Form;

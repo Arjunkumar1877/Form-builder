@@ -1,4 +1,4 @@
-import FormDisplay from "../components/FomDisplay"
+import FormDisplay from "../components/Fom"
 type FieldType = 'text' | 'number' | 'dropdown' | 'checkbox' | 'radio' | 'upload' | 'datetime' | 'email';
 
 interface Field {

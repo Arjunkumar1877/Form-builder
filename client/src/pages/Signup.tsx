@@ -1,6 +1,10 @@
+import axios from "axios";
 import { ChangeEvent, useState, FormEvent } from "react";
 import { FaEyeSlash, FaRegEye } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+import { Api } from "../utils/api";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 type UserSignupDataType = {
   _id?: string;
@@ -20,6 +24,8 @@ const Signup = () => {
     password: "",
     confirmPassword: "",
   });
+  const navigate = useNavigate();
+
 
   const handleChangeData = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -30,7 +36,7 @@ const Signup = () => {
     handleValidateForm(name, value);
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const valid = handleInputValidity();
@@ -42,6 +48,22 @@ const Signup = () => {
       !valid
     ) {
       console.log("Form Submitted Successfully: ", userData);
+
+      const res = await axios.post(`${Api}/user/signup`, {
+        name: userData.name,
+        email: userData.email,
+        password: userData.password
+      })
+
+      console.log(res.data)
+      if(res.data.success){
+        toast("User data saved sucessfully.")
+       navigate('/login');
+      }else{
+        toast("User already exist");
+      }
+
+
     } else {
       console.log("Validation Errors: ", dataError);
     }

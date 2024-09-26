@@ -1,6 +1,7 @@
 import './App.css';
 import FormBuilder from './components/FormBuilder';
 import Form from './pages/Form';
+import FormListPage from './pages/FormListPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -17,9 +18,10 @@ function App() {
       <Routes>
 
         <Route path="/" element={<FormBuilder />} />
-        <Route path="/form" element={<Form />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/form" element={<Form />} />
+       <Route path='/form_list' element={<FormListPage />} />
       </Routes>
     </BrowserRouter>
   );
