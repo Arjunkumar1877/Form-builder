@@ -1,32 +1,79 @@
-import FormDisplay from "../components/Fom"
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
+import { Api } from "../utils/api";
+import FormDisplay from "../components/FomDisplay";
+
 type FieldType = 'text' | 'number' | 'dropdown' | 'checkbox' | 'radio' | 'upload' | 'datetime' | 'email';
 
 interface Field {
-  id: string;
+  _id?: string;
   label: string;
   type: FieldType; 
   options?: string[];
+  required: boolean;
 }
 
-const staticFields: Field[] = [
-  { id: 'field-1', label: 'WEmail', type: 'email' },
-  { id: 'field-2', label: 'Age', type: 'number' },
-  { id: 'field-3', label: 'Gender', type: 'radio', options: ['Male', 'Female', 'Other'] },
-  { id: 'field-4', label: 'Favorite Colors', type: 'checkbox', options: ['Red', 'Green', 'Blue'] },
-  { id: 'field-5', label: 'Country', type: 'dropdown', options: ['USA', 'Canada', 'UK'] },
-  { id: 'field-6', label: 'Upload File', type: 'upload' },
-  { id: 'field-7', label: 'Appointment Date', type: 'datetime' },
-];
+interface FormData {
+  _id?: string;
+  title: string;
+  fields: Field[];
+  creatorId: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const Form = () => {
-  const formTitle = "Sample Form";
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const formId = query.get('formId') || "66f56a5ca73d0a037bcacce5";
+  const creatorId = query.get('creatorId') || "66f54dd61a343527bcfa763a";
 
+  const [formData, setFormData] = useState<FormData | null>(null);
+  const [error, setError] = useState<string | null>(null); 
+  const [loading, setLoading] = useState<boolean>(true); 
+
+  useEffect(() => {
+    const fetchForm = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`${Api}/user/getA_form/${formId}/${creatorId}`);
+        const { title, fields } = res.data;
+        setFormData({ ...res.data, title, fields });
+        setError(null); 
+      } catch (error: any) {
+        console.error(error);
+        setError(error.response?.data?.message || 'Failed to load the form. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchForm();
+  }, [creatorId, formId]);
+
+  console.log(formData);
 
   return (
     <div>
-      <FormDisplay title={formTitle} fields={staticFields} />
+      {loading && <p>Loading form...</p>}
+      {error && <p className="text-red-500">{error}</p>} 
+      {!loading && !error && formData && (
+        <FormDisplay 
+          title={formData.title} 
+          formId={formId}
+          fields={formData.fields.map(field => ({
+            id: field._id || 'default-id',
+            label: field.label,
+            type: field.type,
+            options: field.options ?? [], // Optional chaining for default options
+            required: field.required
+          }))} 
+        />
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default Form
+export default Form;
+
+

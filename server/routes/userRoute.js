@@ -16,6 +16,12 @@ router.post('/add_form', userController.saveForm);
 router.get('/get_forms/:creatorId', userController.getAllForms);
 
 
-router.get('/getA_form/:formId/:creatorId', userController.getAllForms);
+router.get('/getA_form/:formId/:creatorId', userController.getAForms);
+
+
+router.post('/add_response', userController.addResponse);
+
+
+router.get('get_responses/:formId', )
 
 export default router

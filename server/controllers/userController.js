@@ -1,4 +1,5 @@
 import { FormModel } from "../models/formModel.js";
+import { UserResponse } from "../models/responseModel.js";
 import { UserModel } from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 
@@ -150,7 +151,7 @@ class UserController {
       const form = await FormModel.find({ creatorId });
   
       if (!form) {
-        return res.status(404).json({ message: 'Form not found', success: CSSFontFeatureValuesRule });
+        return res.status(404).json({ message: 'Form not found', success: false });
       }
   
       return res.status(200).json({message: "data successfully fetched", data: form, success: true});
@@ -160,6 +161,36 @@ class UserController {
     }
   }
 
+  addResponse = async (req, res) => {
+  try {
+
+    console.log(req.body)
+    const { formId, responses } = req.body;
+
+    if (!formId || !responses) {
+      return res.status(400).json({ message: 'Form ID and responses are required.' });
+    }
+
+    const newResponse = new UserResponse({ formId, responses });
+
+    await newResponse.save();
+
+    res.status(201).json({ message: 'Response saved successfully', response: newResponse, success: true });
+  } catch (error) {
+    console.error('Error saving response:', error);
+    res.status(500).json({ message: 'An error occurred while saving the response' });
+  }
+  };
+
+  getResponses = async (req, res) => {
+    const formId = req.params;
+    try {
+      const responses = await ResponseModel.find({ formId }); 
+      res.json({ responses });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch responses' });
+    }
+  }
 }
 
 export const userController = new UserController();
