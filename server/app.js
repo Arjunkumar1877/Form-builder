@@ -1,50 +1,75 @@
-import  createError  from 'http-errors';
-import  express  from 'express';
-import  path  from 'path';
-import  cookieParser  from 'cookie-parser';
-import  logger  from 'morgan';
-import  dotenv  from 'dotenv';
-import  mongoose  from 'mongoose';
-dotenv.config()
-
-import  indexRouter  from './routes/index';
-import  usersRouter  from './routes/users';
-
-const app = express();
+import createError from 'http-errors';
+import express from 'express';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import userRouter from './routes/users.js'
 
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+dotenv.config();
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+class App {
+  constructor() {
+    this.app = express();
+    this.port = process.env.PORT || 3000;
+    this.connectToDatabase();
+    this.initializeMiddleware();
+    this.initializeRoutes();
+    this.initializeErrorHandling();
+  }
 
+  // Method to connect to MongoDB
+  connectToDatabase() {
+    mongoose.connect(process.env.MONGO_URI)
+      .then(() => {
+        console.log('MongoDB connected');
+      })
+      .catch((err) => {
+        console.error('MongoDB connection error:', err);
+      });
+  }
 
+  // Method to initialize middleware
+  initializeMiddleware() {
+    this.app.use(logger('dev'));
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: false }));
+    this.app.use(cookieParser());
+  }
 
-mongoose.connect(process.env.MONGO_URI)
-.then(()=>{
-    console.log('MongoDb connected')
-})
-.catch((err)=>{
-    console.log(err)
-})
+  // Method to initialize routes
+  initializeRoutes() {
+    this.app.use('/users', userRouter);
+  }
 
+  // Method to initialize error handling
+  initializeErrorHandling() {
+    this.app.use((req, res, next) => {
+      next(createError(404));
+    });
 
+    this.app.use((err, req, res, next) => {
+      res.locals.message = err.message;
+      res.locals.error = req.app.get('env') === 'development' ? err : {};
+      
+      // render the error page
+      res.status(err.status || 500);
+      res.render('error');
+    });
+  }
 
-app.use(function(req, res, next) {
-  next(createError(404));
-});
+  // Method to start the server
+  listen() {
+    this.app.listen(this.port, () => {
+      console.log(`Server is running on http://localhost:${this.port}`);
+    });
+  }
+}
 
+// Create an instance of the App class and listen on the specified port
+const appInstance = new App();
+appInstance.listen();
 
-app.use(function(err, req, res, next) {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-module.exports = app;
+export default appInstance.app; // Exporting the app instance for use in other modules

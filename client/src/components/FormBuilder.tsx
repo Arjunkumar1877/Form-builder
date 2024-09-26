@@ -1,42 +1,75 @@
 import React, { useState } from 'react';
 
-type FieldType = 'text' | 'number' | 'dropdown' | 'checkbox' | 'radio' | 'upload' | 'datetime';
+type FieldType = 'text' | 'number' | 'dropdown' | 'checkbox' | 'radio' | 'upload' | 'datetime' | 'email' | 'password';
 
 interface Field {
   id: string;
   label: string;
   type: FieldType;
   options?: string[];
+  required?: boolean;
 }
 
 const FormBuilder: React.FC = () => {
   const [fields, setFields] = useState<Field[]>([]);
   const [formTitle, setFormTitle] = useState('');
-  const [newField, setNewField] = useState<Partial<Field>>({ type: 'text', label: '' }); 
+  const [newField, setNewField] = useState<Partial<Field>>({ type: 'text', label: '' });
 
   const handleAddField = () => {
     if (newField.label && newField.type) {
+      // Check if the field label already exists
+      const fieldExists = fields.some(field => field.label === newField.label);
+      if (fieldExists) {
+        alert(`Field with the label "${newField.label}" already exists. Please use a different label.`);
+        return; // Prevent adding the field if it already exists
+      }
+
       const id = `field-${fields.length + 1}`;
       const field: Field = {
         id,
         label: newField.label,
         type: newField.type,
         options: newField.type === 'dropdown' || newField.type === 'checkbox' || newField.type === 'radio' ? newField.options || [] : undefined,
+        required: true, 
       };
 
-      setFields([...fields, field]); 
-      setNewField({ type: 'text', label: '' }); 
+      setFields([...fields, field]);
+      setNewField({ type: 'text', label: '' });
     } else {
       alert('Please provide a label and select a type.');
     }
   };
 
-  
   const handleSubmit = () => {
     if (!formTitle.trim()) {
       alert('Form title is required');
       return;
     }
+
+    const validationErrors = fields.map(field => {
+      if (field.required) {
+        switch (field.type) {
+          case 'text':
+          case 'number':
+          case 'email':
+          case 'password':
+            return !field.label ? `${field.label} is required.` : null;
+          case 'upload':
+            return !field.label ? `File upload for ${field.label} is required.` : null;
+          case 'datetime':
+            return !field.label ? `Date and time for ${field.label} is required.` : null;
+          default:
+            return null;
+        }
+      }
+      return null;
+    }).filter(Boolean);
+
+    if (validationErrors.length > 0) {
+      alert(validationErrors.join('\n'));
+      return;
+    }
+
     console.log({ title: formTitle, fields });
   };
 
@@ -78,6 +111,8 @@ const FormBuilder: React.FC = () => {
           <option value="radio">Radio</option>
           <option value="upload">Upload</option>
           <option value="datetime">Date/Time</option>
+          <option value="email">Email</option>
+          <option value="password">Password</option>
         </select>
 
         {(newField.type === 'dropdown' || newField.type === 'checkbox' || newField.type === 'radio') && (
@@ -105,7 +140,7 @@ const FormBuilder: React.FC = () => {
 
       {fields.map((field) => (
         <div key={field.id} className="mb-6 relative p-4 bg-gray-50 rounded-lg border border-gray-300">
-          <label className="block text-lg font-semibold mb-2">{field.label}</label>
+          <label className="block text-lg font-semibold mb-2">{field.label} {field.required && <span className="text-red-500">*</span>}</label>
           <button
             onClick={() => handleDeleteField(field.id)}
             className="absolute right-4 top-4 bg-red-500 text-white px-2 py-1 rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -117,6 +152,7 @@ const FormBuilder: React.FC = () => {
               type="text"
               placeholder={`Enter ${field.label}`}
               className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required={field.required}
             />
           )}
           {field.type === 'number' && (
@@ -124,44 +160,65 @@ const FormBuilder: React.FC = () => {
               type="number"
               placeholder={`Enter ${field.label}`}
               className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required={field.required}
             />
           )}
-          {field.type === 'dropdown' && (
-            <select className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-              {field.options?.map((option, index) => (
-                <option key={index}>{option}</option>
+          {field.type === 'dropdown' && field.options && (
+            <select className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required={field.required}>
+              {field.options.map((option, index) => (
+                <option key={index} value={option}>{option}</option>
               ))}
             </select>
           )}
-          {field.type === 'checkbox' &&
-            field.options?.map((option, index) => (
-              <label key={index} className="block text-lg">
-                <input type="checkbox" className="mr-2" /> {option}
-              </label>
-            ))}
-          {field.type === 'radio' &&
-            field.options?.map((option, index) => (
-              <label key={index} className="block text-lg">
-                <input type="radio" name={field.id} className="mr-2" /> {option}
-              </label>
-            ))}
+          {field.type === 'checkbox' && field.options && (
+            <div>
+              {field.options.map((option, index) => (
+                <label key={index} className="inline-flex items-center">
+                  <input type="checkbox" className="mr-2" required={field.required} />
+                  {option}
+                </label>
+              ))}
+            </div>
+          )}
+          {field.type === 'radio' && field.options && (
+            <div>
+              {field.options.map((option, index) => (
+                <label key={index} className="inline-flex items-center">
+                  <input type="radio" name={field.label} className="mr-2" required={field.required} />
+                  {option}
+                </label>
+              ))}
+            </div>
+          )}
           {field.type === 'upload' && (
             <input
               type="file"
               className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required={field.required}
             />
           )}
           {field.type === 'datetime' && (
-            <div className="flex space-x-4">
-              <input
-                type="date"
-                className="w-1/2 p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="time"
-                className="w-1/2 p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            <input
+              type="datetime-local"
+              className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required={field.required}
+            />
+          )}
+          {field.type === 'email' && (
+            <input
+              type="email"
+              placeholder={`Enter ${field.label}`}
+              className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required={field.required}
+            />
+          )}
+          {field.type === 'password' && (
+            <input
+              type="password"
+              placeholder={`Enter ${field.label}`}
+              className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required={field.required}
+            />
           )}
         </div>
       ))}
