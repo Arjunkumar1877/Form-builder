@@ -223,7 +223,8 @@ const FormBuilder: React.FC = () => {
           </div>
         ))}
 
-        {/* Submit Button */}
+
+
         <div className="w-full flex justify-end">
           <button
             onClick={handleSubmit}

@@ -7,7 +7,7 @@ import { toast } from 'react-toastify'; // Import toast
 import Swal from 'sweetalert2'; // Import SweetAlert
 
 interface Field {
-  id: string;
+  _id: string;
   label: string;
   type: string;
   options?: string[];
@@ -110,6 +110,8 @@ const FormList = () => {
     </button>
   );
 
+  console.log(forms)
+
   return (
     <div className="p-8 max-w-3xl mx-auto bg-white rounded-xl shadow-lg mt-10">
       <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Your Forms</h2>
@@ -135,7 +137,7 @@ const FormList = () => {
               <h3 className="text-2xl font-semibold mb-4 text-gray-800">{form.title.toUpperCase()}</h3>
               <ul className="mb-4 list-disc list-inside">
                 {form.fields.map((field) => (
-                  <li key={field.id} className="mb-2 text-gray-700">
+                  <li key={field._id} className="mb-2 text-gray-700">
                     <strong>{field.label.toUpperCase()}</strong>: {field.type}
                     {field.options && field.options.length > 0 && (
                       <span className="ml-2 text-sm text-gray-800">

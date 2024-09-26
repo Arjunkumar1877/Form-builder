@@ -7,6 +7,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import GoogleAuth from "../components/GoogleAuth";
 
 
 const Login = () => {
@@ -160,9 +161,7 @@ useEffect(()=>{
               <hr className="border-gray-500" />
             </div>
 
-            {/* <div className="bg-white border py-2 w-full rounded-xl cursor-pointer mt-5 flex justify-center items-center gap-2">
-              <FcGoogle /> Login with Google
-            </div> */}
+          <GoogleAuth />
 
 
             <div className="mt-3 text-xs flex justify-between items-center">

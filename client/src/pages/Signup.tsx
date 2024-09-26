@@ -5,6 +5,7 @@ import { FaEyeSlash, FaRegEye } from "react-icons/fa";
 import { Api } from "../utils/api";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import GoogleAuth from "../components/GoogleAuth";
 
 type UserSignupDataType = {
   _id?: string;
@@ -226,9 +227,7 @@ const Signup = () => {
               <hr className="border-gray-500" />
             </div>
 
-            {/* <div className="bg-white border py-2 w-full rounded-xl cursor-pointer mt-5 flex justify-center items-center gap-2">
-              <FcGoogle /> Signup with Google
-            </div> */}
+       <GoogleAuth />
 
             <div className="mt-3 text-xs flex justify-between items-center">
               <p>Already have an account?</p>
