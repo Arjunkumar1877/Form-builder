@@ -208,18 +208,22 @@ const FormBuilder: React.FC = () => {
           <div key={field.id} className="mb-6 relative p-4 bg-gray-50 rounded-lg border border-gray-300">
             <label className="block text-lg font-semibold mb-2">{field.label} {field.required && <span className="text-red-500">*</span>}</label>
 
-            <button
-              onClick={() => handleEditField(field.id)}
-              className="absolute right-4 top-4 text-black font-semibold hover:text-blue-600"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => handleDeleteField(field.id)}
-              className="absolute right-4 top-12 text-red-500 font-semibold hover:text-red-600"
-            >
-              Delete
-            </button>
+     
+          
+          
+          <button
+            onClick={() => handleEditField(field.id)}
+            className="absolute right-4 top-4  text-black font-semibold px-2 py-1 rounded-lg hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => handleDeleteField(field.id)}
+            className="absolute right-20 top-4 font-semibold text-red-500 px-2 py-1 rounded-lg hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            Delete
+          </button>
+
           </div>
         ))}
 

@@ -38,7 +38,7 @@ router.post('/delete_form/:formId', userController.deleteForm);
 router.post("/google_oauth", userController.googleOuth);
 
 
-// ===========================| ROUTE FOR LOADING THE SERVER IN THE RENDER PLATFORM |--------------------------------------------------------------------------------------------------------------------------------------------
+// ===========================| ROUTE FOR LOADING THE SLEEPING SERVER IN THE RENDER PLATFORM |--------------------------------------------------------------------------------------------------------------------------------------------
 router.get("/loading", (req, res)=>{
     res.json(data);
 });
