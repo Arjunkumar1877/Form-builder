@@ -20,7 +20,14 @@ const fieldSchema = new mongoose.Schema({
     }
 });
 
+
+
 const formSchema = new mongoose.Schema({
+    creatorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'User' 
+    },
     title: {
         type: String,
         required: true
