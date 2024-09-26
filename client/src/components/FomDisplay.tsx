@@ -174,22 +174,24 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
   };
 
   return (
-    <div className="p-6 max-w-lg mx-auto bg-slate-100 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">
+    <div className="p-6 max-w-2xl mx-auto bg-white rounded-lg shadow-lg">
+      <h2 className="text-3xl font-extrabold text-center mb-6 text-gray-800">
         {title}
       </h2>
       <form onSubmit={handleSubmit}>
         {fields.map((field) => (
-          <div key={field.id} className="mb-4">
+          <div key={field.id} className="mb-6">
             <label className="block text-lg font-semibold mb-2 text-gray-700">
               {field.label}
             </label>
             {field.type === "text" && (
               <input
                 type="text"
-                className={`w-full p-2 border ${
-                  errors[field.id] ? "border-red-500" : "border-gray-300"
-                } rounded transition duration-150`}
+                className={`w-full p-3 border ${
+                  errors[field.id]
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-500"
+                } rounded-lg transition duration-150 focus:outline-none focus:ring-2`}
                 placeholder={`Enter ${field.label}`}
                 onChange={(e) => handleChange(field.id, e.target.value)}
               />
@@ -197,9 +199,11 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
             {field.type === "number" && (
               <input
                 type="number"
-                className={`w-full p-2 border ${
-                  errors[field.id] ? "border-red-500" : "border-gray-300"
-                } rounded transition duration-150`}
+                className={`w-full p-3 border ${
+                  errors[field.id]
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-500"
+                } rounded-lg transition duration-150 focus:outline-none focus:ring-2`}
                 placeholder={`Enter ${field.label}`}
                 onChange={(e) => handleChange(field.id, e.target.value)}
               />
@@ -207,9 +211,11 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
             {field.type === "email" && (
               <input
                 type="email"
-                className={`w-full p-2 border ${
-                  errors[field.id] ? "border-red-500" : "border-gray-300"
-                } rounded transition duration-150`}
+                className={`w-full p-3 border ${
+                  errors[field.id]
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-500"
+                } rounded-lg transition duration-150 focus:outline-none focus:ring-2`}
                 placeholder={`Enter ${field.label}`}
                 onChange={(e) => handleChange(field.id, e.target.value)}
               />
@@ -217,17 +223,21 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
             {field.type === "datetime" && (
               <input
                 type="datetime-local"
-                className={`w-full p-2 border ${
-                  errors[field.id] ? "border-red-500" : "border-gray-300"
-                } rounded transition duration-150`}
+                className={`w-full p-3 border ${
+                  errors[field.id]
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-500"
+                } rounded-lg transition duration-150 focus:outline-none focus:ring-2`}
                 onChange={(e) => handleChange(field.id, e.target.value)}
               />
             )}
             {field.type === "dropdown" && (
               <select
-                className={`w-full p-2 border ${
-                  errors[field.id] ? "border-red-500" : "border-gray-300"
-                } rounded transition duration-150`}
+                className={`w-full p-3 border ${
+                  errors[field.id]
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-500"
+                } rounded-lg transition duration-150 focus:outline-none focus:ring-2`}
                 onChange={(e) => handleChange(field.id, e.target.value)}
               >
                 <option value="">Select {field.label}</option>
@@ -241,30 +251,25 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
             {field.type === "checkbox" && field.options && (
               <div>
                 {field.options.map((option) => (
-                  <label key={option} className="block mb-2">
+                  <label key={option} className="inline-flex items-center mb-2">
                     <input
                       type="checkbox"
+                      className="form-checkbox h-4 w-4 text-blue-600"
                       value={option}
                       onChange={(e) => {
                         const currentValues = formValues[field.id]
                           ? formValues[field.id].split(", ")
                           : [];
                         if (e.target.checked) {
-                          handleChange(
-                            field.id,
-                            [...currentValues, option].join(", ")
-                          );
+                          currentValues.push(option);
                         } else {
-                          handleChange(
-                            field.id,
-                            currentValues
-                              .filter((v: any) => v !== option)
-                              .join(", ")
-                          );
+                          const index = currentValues.indexOf(option);
+                          currentValues.splice(index, 1);
                         }
+                        handleChange(field.id, currentValues.join(", "));
                       }}
                     />
-                    {option}
+                    <span className="ml-2">{option}</span>
                   </label>
                 ))}
               </div>
@@ -272,45 +277,56 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
             {field.type === "radio" && field.options && (
               <div>
                 {field.options.map((option) => (
-                  <label key={option} className="block mb-2">
+                  <label
+                    key={option}
+                    className="inline-flex items-center mr-4"
+                  >
                     <input
                       type="radio"
+                      className="form-radio h-4 w-4 text-blue-600"
                       name={field.id}
                       value={option}
                       onChange={(e) => handleChange(field.id, e.target.value)}
                     />
-                    {option}
+                    <span className="ml-2">{option}</span>
                   </label>
                 ))}
               </div>
             )}
             {field.type === "upload" && (
-              <div>
+              <div className="flex flex-col space-y-3">
                 <input
                   type="file"
+                  accept="image/jpeg,image/png,application/pdf"
+                  className="text-gray-700"
                   onChange={(e) => {
                     if (e.target.files) {
                       setFile(e.target.files[0]);
-                      handleChange(field.id, e.target.files[0].name); // Update the form value with the file name
                     }
                   }}
                 />
-                {imageUploadProgress && (
-                  <div>Uploading: {imageUploadProgress}%</div>
+                {imageUploadProgress !== null && (
+                  <progress
+                    value={imageUploadProgress}
+                    max="100"
+                    className="w-full"
+                  >
+                    {imageUploadProgress}%
+                  </progress>
                 )}
                 {imageUploadError && (
-                  <p className="text-red-500">{imageUploadError}</p>
+                  <p className="text-red-500 text-sm">{imageUploadError}</p>
                 )}
               </div>
             )}
             {errors[field.id] && (
-              <p className="text-red-500">{errors[field.id]}</p>
+              <p className="text-red-500 text-sm">{errors[field.id]}</p>
             )}
           </div>
         ))}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white p-2 rounded transition duration-150 hover:bg-blue-700"
+          className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-150 font-semibold"
         >
           Submit
         </button>
@@ -320,3 +336,4 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
 };
 
 export default FormDisplay;
+

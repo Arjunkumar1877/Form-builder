@@ -1,339 +1,100 @@
-import React, { useState } from "react";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { app } from "../firebase/firebase";
-import axios from "axios";
-import { Api } from "../utils/api";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Api } from '../utils/api';
+import { useLocation } from 'react-router-dom';
+import Header from './Header';
+import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer and toast
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS for toast
 
-type FieldType =
-  | "text"
-  | "number"
-  | "dropdown"
-  | "checkbox"
-  | "radio"
-  | "upload"
-  | "datetime"
-  | "email";
-
-interface Field {
-  id: string;
-  label: string;
-  type: FieldType;
-  options?: string[]; // For dropdown, checkbox, and radio fields
-  required?: boolean;
-}
-
-interface FormDisplayProps {
-  title: string;
+interface ResponseData {
+  _id: string;
+  createdAt: string;
   formId: string;
-  fields: Field[];
+  responses: { key: string; value: string; _id: string }[];
 }
 
-const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
-  const [formValues, setFormValues] = useState<Record<string, any>>({});
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [file, setFile] = useState<File | null>(null);
-  const [imageUploadProgress, setImageUploadProgress] = useState<number | null>(
-    null
-  );
-  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
-  const navigate = useNavigate();
+const FormResponsesDisplay = () => {
+  const [responses, setResponses] = useState<ResponseData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const formId = query.get('formId'); // Use query param if available
 
-  const handleChange = (id: string, value: any) => {
-    setFormValues((prev) => ({ ...prev, [id]: value }));
-    setErrors((prev) => ({ ...prev, [id]: "" }));
-  };
-
-  const handleUploadFile = async (): Promise<string | null> => {
-    if (!file) {
-      setImageUploadError("Please select an image or PDF");
-      return null;
-    }
-
-    setImageUploadError(null);
-    const storage = getStorage(app);
-    const fileName = `${new Date().getTime()}-${file.name}`;
-    const storageRef = ref(storage, fileName);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    return new Promise<string>((resolve, reject) => {
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setImageUploadProgress(Math.round(progress));
-        },
-        (error) => {
-          setImageUploadError("File upload failed");
-          setImageUploadProgress(null);
-          reject(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setImageUploadProgress(null);
-            setImageUploadError(null);
-            resolve(downloadURL);
-            setFile(null); // Reset file state after successful upload
-          });
-        }
-      );
-    });
-  };
-
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    fields.forEach((field) => {
-      const fieldValue = formValues[field.id];
-      if (field.required && !fieldValue) {
-        newErrors[field.id] = `${field.label} is required`;
-      } else {
-        switch (field.type) {
-          case "email":
-            if (fieldValue && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fieldValue)) {
-              newErrors[field.id] = `Invalid email format for ${field.label}`;
-            }
-            break;
-          case "number":
-            if (fieldValue !== undefined && isNaN(Number(fieldValue))) {
-              newErrors[field.id] = `${field.label} must be a valid number`;
-            }
-            break;
-          case "upload":
-            if (
-              file &&
-              !["image/jpeg", "image/png", "application/pdf"].includes(
-                file.type
-              )
-            ) {
-              newErrors[
-                field.id
-              ] = `Only JPEG, PNG images, and PDF files are allowed for ${field.label}`;
-            }
-            break;
-          case "datetime":
-            if (
-              fieldValue &&
-              new Date(fieldValue).toString() === "Invalid Date"
-            ) {
-              newErrors[
-                field.id
-              ] = `${field.label} must be a valid date and time`;
-            }
-            break;
-          default:
-            break;
-        }
-      }
-    });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (validate()) {
+  useEffect(() => {
+    const fetchResponses = async () => {
       try {
-        let uploadedFileUrl: string | null = null;
-        if (file) {
-          uploadedFileUrl = await handleUploadFile();
-        }
-
-        // Transform formValues into an array of objects
-        const finalData = fields.map((field) => ({
-          key: field.label,
-          value:
-            field.type === "upload" ? uploadedFileUrl : formValues[field.id],
-        }));
-
-        console.log("Form submitted successfully:", finalData);
-
-        const res = await axios.post(`${Api}/user/add_response`, {
-          formId,
-          responses: finalData,
-        });
-
-        console.log(res.data);
-        toast.success("Form submitted successfully!"); // Notify user of success
-        navigate("/success", {
-          state: { responses: finalData },
-          replace: true,
-        });
-      } catch (error) {
-        console.error("Form submission error:", error);
-        toast.error("Error submitting form. Please try again later."); // Notify user of error
+        const res = await axios.get(`${Api}/user/get_responses/${formId}`);
+        setResponses(res.data.data);
+      } catch (err) {
+        setError('Error fetching responses');
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+
+    fetchResponses();
+  }, [formId]);
+
+  const handleCopyLink = (url: string) => {
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success('Link copied to clipboard!'); 
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+      toast.error('Failed to copy link!');
+    });
   };
+
+  if (loading) return <div className="text-center">Loading...</div>;
+  if (error) return <div className="text-red-500 text-center">{error}</div>;
 
   return (
-    <div className="p-6 max-w-2xl mx-auto bg-white rounded-lg shadow-lg">
-      <h2 className="text-3xl font-extrabold text-center mb-6 text-gray-800">
-        {title}
-      </h2>
-      <form onSubmit={handleSubmit}>
-        {fields.map((field) => (
-          <div key={field.id} className="mb-6">
-            <label className="block text-lg font-semibold mb-2 text-gray-700">
-              {field.label}
-            </label>
-            {field.type === "text" && (
-              <input
-                type="text"
-                className={`w-full p-3 border ${
-                  errors[field.id]
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
-                } rounded-lg transition duration-150 focus:outline-none focus:ring-2`}
-                placeholder={`Enter ${field.label}`}
-                onChange={(e) => handleChange(field.id, e.target.value)}
-              />
-            )}
-            {field.type === "number" && (
-              <input
-                type="number"
-                className={`w-full p-3 border ${
-                  errors[field.id]
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
-                } rounded-lg transition duration-150 focus:outline-none focus:ring-2`}
-                placeholder={`Enter ${field.label}`}
-                onChange={(e) => handleChange(field.id, e.target.value)}
-              />
-            )}
-            {field.type === "email" && (
-              <input
-                type="email"
-                className={`w-full p-3 border ${
-                  errors[field.id]
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
-                } rounded-lg transition duration-150 focus:outline-none focus:ring-2`}
-                placeholder={`Enter ${field.label}`}
-                onChange={(e) => handleChange(field.id, e.target.value)}
-              />
-            )}
-            {field.type === "datetime" && (
-              <input
-                type="datetime-local"
-                className={`w-full p-3 border ${
-                  errors[field.id]
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
-                } rounded-lg transition duration-150 focus:outline-none focus:ring-2`}
-                onChange={(e) => handleChange(field.id, e.target.value)}
-              />
-            )}
-            {field.type === "dropdown" && (
-              <select
-                className={`w-full p-3 border ${
-                  errors[field.id]
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500"
-                } rounded-lg transition duration-150 focus:outline-none focus:ring-2`}
-                onChange={(e) => handleChange(field.id, e.target.value)}
-              >
-                <option value="">Select {field.label}</option>
-                {field.options?.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            )}
-            {field.type === "checkbox" && field.options && (
-              <div>
-                {field.options.map((option) => (
-                  <label key={option} className="inline-flex items-center mb-2">
-                    <input
-                      type="checkbox"
-                      className="form-checkbox h-4 w-4 text-blue-600"
-                      value={option}
-                      onChange={(e) => {
-                        const currentValues = formValues[field.id]
-                          ? formValues[field.id].split(", ")
-                          : [];
-                        if (e.target.checked) {
-                          currentValues.push(option);
-                        } else {
-                          const index = currentValues.indexOf(option);
-                          currentValues.splice(index, 1);
-                        }
-                        handleChange(field.id, currentValues.join(", "));
-                      }}
-                    />
-                    <span className="ml-2">{option}</span>
-                  </label>
-                ))}
-              </div>
-            )}
-            {field.type === "radio" && field.options && (
-              <div>
-                {field.options.map((option) => (
-                  <label
-                    key={option}
-                    className="inline-flex items-center mr-4"
-                  >
-                    <input
-                      type="radio"
-                      className="form-radio h-4 w-4 text-blue-600"
-                      name={field.id}
-                      value={option}
-                      onChange={(e) => handleChange(field.id, e.target.value)}
-                    />
-                    <span className="ml-2">{option}</span>
-                  </label>
-                ))}
-              </div>
-            )}
-            {field.type === "upload" && (
-              <div className="flex flex-col space-y-3">
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,application/pdf"
-                  className="text-gray-700"
-                  onChange={(e) => {
-                    if (e.target.files) {
-                      setFile(e.target.files[0]);
-                    }
-                  }}
-                />
-                {imageUploadProgress !== null && (
-                  <progress
-                    value={imageUploadProgress}
-                    max="100"
-                    className="w-full"
-                  >
-                    {imageUploadProgress}%
-                  </progress>
-                )}
-                {imageUploadError && (
-                  <p className="text-red-500 text-sm">{imageUploadError}</p>
-                )}
-              </div>
-            )}
-            {errors[field.id] && (
-              <p className="text-red-500 text-sm">{errors[field.id]}</p>
-            )}
+    <>
+      <Header />
+      <br />
+      <div className="p-6 max-w-6xl mx-auto bg-slate-100 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">Form Responses</h2>
+
+        {responses.length === 0 ? (
+          <div className="text-center p-4">
+            <p className="text-gray-500 mb-2">No responses available for this form yet.</p>
+            <p className="text-sm text-gray-400">Once users start submitting responses, they will appear here.</p>
           </div>
-        ))}
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-150 font-semibold"
-        >
-          Submit
-        </button>
-      </form>
-    </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {responses.map((response) => (
+              <div key={response._id} className="p-4 border rounded-lg shadow bg-gray-50 transition duration-200 hover:shadow-lg">
+                <h3 className="font-semibold mb-2">Response ID: {response._id}</h3>
+                <p className="mb-2 text-gray-600">Created At: {new Date(response.createdAt).toLocaleString()}</p>
+                {response.responses.map(({ key, value, _id }) => (
+                  <div key={_id} className="mb-2 flex items-center">
+                    <strong className="mr-2">{key}:</strong>
+                    {typeof value === 'string' && (value.startsWith('https://') || value.startsWith('http')) ? (
+                      // Skip displaying the value if it's an image URL
+                      <div className="flex items-center mt-1">
+                        <img src={value} alt={key} className="w-12 h-12 rounded-md object-cover mr-2" />
+                        <button
+                          onClick={() => handleCopyLink(value)}
+                          className="ml-2 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition duration-200"
+                        >
+                          Copy Link
+                        </button>
+                      </div>
+                    ) : (
+                      // Display all other values
+                      <span className="text-gray-800">{value}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick={false} rtl={false} pauseOnFocusLoss draggable pauseOnHover /> {/* Add ToastContainer */}
+    </>
   );
 };
 
-export default FormDisplay;
-
+export default FormResponsesDisplay;
