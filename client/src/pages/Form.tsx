@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { Api } from "../utils/api";
 import FormDisplay from "../components/FomDisplay";
-import Header from "../components/Header";
+
 
 type FieldType = 'text' | 'number' | 'dropdown' | 'checkbox' | 'radio' | 'upload' | 'datetime' | 'email';
 
@@ -58,7 +58,8 @@ const Form = () => {
 
   return (
     <div>
-      <Header />
+      <br />
+      <br />
       {loading && <p>Loading form...</p>}
       {error && <p className="text-red-500">{error}</p>} 
       {!loading && !error && formData && (
