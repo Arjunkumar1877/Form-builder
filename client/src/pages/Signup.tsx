@@ -1,7 +1,7 @@
 import axios from "axios";
 import { ChangeEvent, useState, FormEvent } from "react";
 import { FaEyeSlash, FaRegEye } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 import { Api } from "../utils/api";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
