@@ -97,6 +97,17 @@ useEffect(()=>{
   if(currentUser){
     navigate("/form_list");
   }
+
+  const loadserver = async()=>{
+   const res = await axios(`${Api}/user/loading`);
+   if(res.data){
+    console.log("server loaded on render platform....");
+   }else{
+    console.log("server is still loading on the render...");
+   }
+  }
+loadserver()
+
 },[]);
 
 

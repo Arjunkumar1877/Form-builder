@@ -1,11 +1,12 @@
 import axios from "axios";
-import { ChangeEvent, useState, FormEvent } from "react";
+import { ChangeEvent, useState, FormEvent, useEffect } from "react";
 import { FaEyeSlash, FaRegEye } from "react-icons/fa";
 // import { FcGoogle } from "react-icons/fc";
 import { Api } from "../utils/api";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import GoogleAuth from "../components/GoogleAuth";
+import { useSelector } from "react-redux";
 
 type UserSignupDataType = {
   _id?: string;
@@ -18,6 +19,7 @@ type UserSignupDataType = {
 const Signup = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const { currentUser } = useSelector((state: any)=> state.user);
   const [dataError, setDataError] = useState<Partial<UserSignupDataType>>({});
   const [userData, setUserData] = useState<UserSignupDataType>({
     name: "",
@@ -123,6 +125,24 @@ const Signup = () => {
       [name]: error,
     }));
   };
+
+  useEffect(()=>{
+    if(currentUser){
+      navigate("/form_list");
+    }
+  
+    const loadserver = async()=>{
+     const res = await axios(`${Api}/user/loading`);
+     if(res.data){
+      console.log("server loaded on render platform....");
+     }else{
+      console.log("server is still loading on the render...");
+     }
+    }
+  loadserver()
+  
+  },[]);
+
 
   return (
     <div className="">
