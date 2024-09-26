@@ -183,14 +183,29 @@ class UserController {
   };
 
   getResponses = async (req, res) => {
-    const formId = req.params;
+    const {formId}  = req.params;
+  
+    console.log(req.params)
     try {
-      const responses = await ResponseModel.find({ formId }); 
-      res.json({ responses });
+      const result = await UserResponse.find({formId: formId}) // Make sure this function is defined
+      return res.status(201).json({ message: 'all respons', data: result });
     } catch (error) {
-      res.status(500).json({ error: 'Failed to fetch responses' });
+      console.error('Error adding response:', error);
+      return res.status(500).json({ message: 'An error occurred while adding response', error: error.message });
     }
   }
+
+  deleteForm = async(req, res)=>{
+    try {
+      const deleteForm = await FormModel.findOneAndDelete({_id: req.params.formId})
+      if(deleteForm){
+        res.json({message: "deleted succesfully", success: true})
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
 }
 
 export const userController = new UserController();

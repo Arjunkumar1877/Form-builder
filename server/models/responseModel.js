@@ -1,47 +1,19 @@
-// import mongoose from "mongoose";
-
-// const userResponseSchema = new mongoose.Schema(
-//   {
-//     creatorId: {
-//       type: mongoose.Schema.Types.ObjectId,
-//       required: true,
-//       ref: "User",
-//     },
-//     formId: {
-//       type: mongoose.Schema.Types.ObjectId,
-//       required: true,
-//       ref: "Form",
-//     },
-//     responses: [
-//       {
-//         fieldName: {
-//           type: String,
-//         },
-//         response: {
-//           type: String,
-//         },
-//       },
-//     ],
-//   },
-//   { timestamps: true }
-// );
-
-// export const UserResponseModel = mongoose.model(
-//   "UserResponse",
-//   userResponseSchema
-// );
 
 
-
-
-import  mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
 const userResponseSchema = new mongoose.Schema({
   formId: { type: mongoose.Schema.Types.ObjectId, required: true },
-  responses: { type: Map, of: mongoose.Schema.Types.Mixed, required: true },
+  responses: {
+    type: [
+      {
+        key: { type: String, required: true },  // Define the key field
+        value: { type: String, required: true } // Define the value field
+      }
+    ],
+    required: true
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
 export const UserResponse = mongoose.model('UserResponse', userResponseSchema);
-
-

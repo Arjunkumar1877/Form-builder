@@ -17,7 +17,7 @@ interface Field {
   id: string;
   label: string;
   type: FieldType;
-  options?: string[]; // For dropdown and radio fields
+  options?: string[]; // For dropdown, checkbox, and radio fields
   required?: boolean;
 }
 
@@ -39,7 +39,7 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
     setErrors((prev) => ({ ...prev, [id]: '' }));
   };
 
-  const handleUploadFile = async () => {
+  const handleUploadFile = async (): Promise<string | null> => {
     if (!file) {
       setImageUploadError('Please select an image or PDF');
       return null;
@@ -68,6 +68,7 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
             setImageUploadProgress(null);
             setImageUploadError(null);
             resolve(downloadURL);
+            setFile(null); // Reset file state after successful upload
           });
         }
       );
@@ -115,15 +116,16 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
     event.preventDefault();
     if (validate()) {
       try {
-        let uploadedFileUrl = null;
+        let uploadedFileUrl: string | null = null;
         if (file) {
           uploadedFileUrl = await handleUploadFile();
         }
 
-        const finalData = {
-          ...formValues,
-          file: uploadedFileUrl,
-        };
+        // Transform formValues into an array of objects
+        const finalData = fields.map((field) => ({
+          key: field.label,
+          value: field.type === 'upload' ? uploadedFileUrl : formValues[field.id],
+        }));
 
         console.log('Form submitted successfully:', finalData);
 
@@ -133,9 +135,10 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
         });
 
         console.log(res.data);
-        // Add further form submission logic here
+        toast.success('Form submitted successfully!'); // Notify user of success
       } catch (error) {
         console.error('Form submission error:', error);
+        toast.error('Error submitting form. Please try again later.'); // Notify user of error
       }
     }
   };
@@ -191,17 +194,31 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
                 ))}
               </select>
             )}
-            {field.type === 'checkbox' && (
-              <input
-                type="checkbox"
-                className="mr-2"
-                onChange={(e) => handleChange(field.id, e.target.checked)}
-              />
-            )}
-            {field.type === 'radio' && (
+            {field.type === 'checkbox' && field.options && (
               <div>
-                {field.options?.map((option) => (
-                  <label key={option} className="mr-4">
+                {field.options.map((option) => (
+                  <label key={option} className="block mb-2">
+                    <input
+                      type="checkbox"
+                      value={option}
+                      onChange={(e) => {
+                        const currentValues = formValues[field.id] ? formValues[field.id].split(', ') : [];
+                        if (e.target.checked) {
+                          handleChange(field.id, [...currentValues, option].join(', '));
+                        } else {
+                          handleChange(field.id, currentValues.filter((v: any) => v !== option).join(', '));
+                        }
+                      }}
+                    />
+                    {option}
+                  </label>
+                ))}
+              </div>
+            )}
+            {field.type === 'radio' && field.options && (
+              <div>
+                {field.options.map((option) => (
+                  <label key={option} className="block mb-2">
                     <input
                       type="radio"
                       name={field.id}
@@ -214,33 +231,30 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
               </div>
             )}
             {field.type === 'upload' && (
-              <input
-                type="file"
-                accept="image/jpeg, image/png, application/pdf"
-                className="w-full p-2 border border-gray-300 rounded transition duration-150"
-                onChange={(e) => {
-                  const selectedFile = e.target.files ? e.target.files[0] : null;
-                  if (
-                    selectedFile &&
-                    !['image/jpeg', 'image/png', 'application/pdf'].includes(selectedFile.type)
-                  ) {
-                    toast.error('Invalid file type. Only JPEG, PNG, and PDF are allowed.');
-                    setFile(null);
-                  } else {
-                    setFile(selectedFile);
-                    handleChange(field.id, selectedFile);
-                  }
-                }}
-              />
+              <div>
+                <input
+                  type="file"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setFile(e.target.files[0]);
+                      handleChange(field.id, e.target.files[0].name); // Update the form value with the file name
+                    }
+                  }}
+                />
+                {imageUploadProgress && (
+                  <div>
+                    Uploading: {imageUploadProgress}%
+                  </div>
+                )}
+                {imageUploadError && <p className="text-red-500">{imageUploadError}</p>}
+              </div>
             )}
-            {errors[field.id] && <span className="text-red-500">{errors[field.id]}</span>}
+            {errors[field.id] && <p className="text-red-500">{errors[field.id]}</p>}
           </div>
         ))}
-        {imageUploadProgress !== null && <div>Uploading file: {imageUploadProgress}%</div>}
-        {imageUploadError && <div className="text-red-500">{imageUploadError}</div>}
         <button
           type="submit"
-          className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-150"
+          className="w-full bg-blue-600 text-white p-2 rounded transition duration-150 hover:bg-blue-700"
         >
           Submit
         </button>

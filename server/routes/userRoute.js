@@ -22,6 +22,6 @@ router.get('/getA_form/:formId/:creatorId', userController.getAForms);
 router.post('/add_response', userController.addResponse);
 
 
-router.get('get_responses/:formId', )
+router.get('/get_responses/:formId', userController.getResponses);
 
 export default router

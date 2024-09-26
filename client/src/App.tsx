@@ -1,5 +1,6 @@
 import './App.css';
 import FormBuilder from './components/FormBuilder';
+import FormResponsesDisplay from './components/ResponsesList';
 import Form from './pages/Form';
 import FormListPage from './pages/FormListPage';
 import Login from './pages/Login';
@@ -17,7 +18,8 @@ function App() {
     <ToastContainer />
       <Routes>
 
-        <Route path="/" element={<FormBuilder />} />
+        {/* <Route path="/" element={<FormBuilder />} /> */}
+        <Route path="/" element={<FormResponsesDisplay />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/form" element={<Form />} />
