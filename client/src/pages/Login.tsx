@@ -164,7 +164,6 @@ useEffect(()=>{
               <FcGoogle /> Login with Google
             </div> */}
 
-            <p className="mt-10 text-xs border-b py-4">Forgot your password?</p>
 
             <div className="mt-3 text-xs flex justify-between items-center">
               <p className="">Don't have an account?</p>
