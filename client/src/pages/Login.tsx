@@ -1,9 +1,13 @@
-
-
-import { ChangeEvent, useState, FormEvent } from "react";
+import { ChangeEvent, useState, FormEvent, useEffect } from "react";
 import { FaEyeSlash, FaRegEye } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { UserType } from "../redux/userSlice";
+import { signInSuccess, UserType } from "../redux/userSlice";
+import { Api } from "../utils/api";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -11,12 +15,15 @@ const Login = () => {
     email: "",
     password: ""
   });
-
   const [userData, setUserData] = useState<UserType>({
     email: "",
     password: ""
   });
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector((state: any)=> state.user);
 
+  
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -55,7 +62,7 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     validateField("email", userData.email);
@@ -63,10 +70,34 @@ const Login = () => {
 
     if (!errors.email && !errors.password && userData.email && userData.password) {
       console.log("Form submitted successfully", userData);
+      const res = await axios.post(`${Api}/user/login`, {
+        userData
+      });
+
+      if(res.data.success){
+        dispatch(signInSuccess(res.data.data));
+        toast("User Succesfully logged in");
+           navigate('/home');
+      }else{
+        
+      }
+
+      console.log(res.data)
+
+
+
     } else {
       console.log("Form has errors", errors);
     }
   };
+
+
+useEffect(()=>{
+  if(currentUser){
+    navigate("/home");
+  }
+},[]);
+
 
   return (
     <div className="">

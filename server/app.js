@@ -1,12 +1,11 @@
 import createError from 'http-errors';
 import express from 'express';
-import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import userRouter from './routes/users.js'
-
+import userRouter from './routes/userRoute.js'
+import cors from 'cors';
 
 dotenv.config();
 
@@ -33,6 +32,7 @@ class App {
 
   // Method to initialize middleware
   initializeMiddleware() {
+    this.app.use(cors())
     this.app.use(logger('dev'));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: false }));
@@ -41,7 +41,7 @@ class App {
 
   // Method to initialize routes
   initializeRoutes() {
-    this.app.use('/users', userRouter);
+    this.app.use('/user', userRouter);
   }
 
   // Method to initialize error handling

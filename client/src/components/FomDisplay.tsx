@@ -17,18 +17,15 @@ interface FormDisplayProps {
   fields: Field[];
 }
 
-// FormDisplay component
 const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields }) => {
   const [formValues, setFormValues] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Handle input change
   const handleChange = (id: string, value: any) => {
     setFormValues((prev) => ({ ...prev, [id]: value }));
-    setErrors((prev) => ({ ...prev, [id]: '' })); // Clear error on change
+    setErrors((prev) => ({ ...prev, [id]: '' })); 
   };
 
-  // Validate form fields
   const validate = () => {
     const newErrors: Record<string, string> = {};
     fields.forEach((field) => {

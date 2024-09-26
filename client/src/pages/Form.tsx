@@ -21,11 +21,10 @@ const staticFields: Field[] = [
 const Form = () => {
   const formTitle = "Sample Form";
 
+
   return (
     <div>
       <FormDisplay title={formTitle} fields={staticFields} />
-
-
     </div>
   )
 }
