@@ -87,7 +87,7 @@ const FormBuilder: React.FC = () => {
 
     console.log(res.data);
     toast.success('Form submitted successfully!');
-    navigate("/form_list")
+    navigate("/form_list");
   };
 
   const handleDeleteField = (id: string) => {
@@ -121,162 +121,119 @@ const FormBuilder: React.FC = () => {
   };
 
   return (
-<>
-<Header />
-<br />
-<div className="p-8 max-w-3xl w-full mx-auto bg-slate-100 rounded-xl shadow-lg mt-10">
-      
-      <h1 className="text-2xl font-bold mb-6 text-center text-gray-700">Form Builder</h1>
-      <label htmlFor="form-title" className="block text-md font-semibold mb-2 text-gray-500">Form Title</label>
-      <input
-        type="text"
-        placeholder="Enter Form Title"
-        value={formTitle}
-        onChange={(e) => setFormTitle(e.target.value)}
-        className="w-full p-3 mb-6 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+    <>
+      <Header />
+      <br />
+      <div className="p-4 sm:p-6 md:p-8 lg:p-12 max-w-full md:max-w-3xl w-full mx-auto bg-slate-100 rounded-xl shadow-lg mt-6">
+        <h1 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 text-center text-gray-700">Form Builder</h1>
 
-      <div className="mb-6">
-        <label className="block text-md font-semibold mb-2 text-gray-500">Field Name</label>
-        <div className='flex'>
-          <input
-            type="text"
-            placeholder="Field Label (e.g., Name, Email)"
-            value={newField.label || ''}
-            onChange={(e) => setNewField({ ...newField, label: e.target.value })}
-            className="w-8/12 p-3 mb-4 mr-3 border border-gray-300 rounded-lg text-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <select
-            value={newField.type}
-            onChange={(e) => setNewField({ ...newField, type: e.target.value as FieldType })}
-            className="w-4/12 p-3 mb-4 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="text">Text</option>
-            <option value="number">Number</option>
-            <option value="dropdown">Dropdown</option>
-            <option value="checkbox">Checkbox</option>
-            <option value="radio">Radio</option>
-            <option value="upload">Upload</option>
-            <option value="datetime">Date/Time</option>
-            <option value="email">Email</option>
-          </select>
-        </div>
+        {/* Form Title Input */}
+        <label htmlFor="form-title" className="block text-md font-semibold mb-2 text-gray-500">Form Title</label>
+        <input
+          type="text"
+          placeholder="Enter Form Title"
+          value={formTitle}
+          onChange={(e) => setFormTitle(e.target.value)}
+          className="w-full p-2 sm:p-3 mb-6 border border-gray-300 rounded-lg text-sm md:text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
 
-        {(newField.type === 'dropdown' || newField.type === 'checkbox' || newField.type === 'radio') && (
-          <>
-            <label className="block text-md font-semibold mb-2 text-gray-500">Options</label>
-            {newField.options?.map((option, index) => (
-              <div key={index} className="flex items-center mb-2">
-                <input
-                  type="text"
-                  value={option}
-                  onChange={(e) => handleOptionChange(index, e.target.value)}
-                  className="w-10/12 p-2 border border-gray-300 rounded-lg text-md focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2"
-                />
-                <button
-                  onClick={() => handleRemoveOption(index)}
-                  className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600 focus:outline-none"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-            <button
-              onClick={handleAddOption}
-              className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Add Option
-            </button>
-          </>
-        )}
-
-<div className='w-full flex justify-end'>
-
-<button
-  onClick={handleAddField}
-  className="w-1/6  px-6 py-3 mt-4 bg-black text-white text-sm font-semibold rounded-3xl hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
->
-  {editFieldId ? 'Update Field' : 'Add Field'}
-</button>
-</div>
-      </div>
-
-      {fields.map((field) => (
-        <div key={field.id} className="mb-6 relative p-4 bg-gray-50 rounded-lg border border-gray-300">
-          <label className="block text-lg font-semibold mb-2">{field.label} {field.required && <span className="text-red-500">*</span>}</label>
-   
-          <button
-            onClick={() => handleEditField(field.id)}
-            className="absolute right-4 top-4  text-black font-semibold px-2 py-1 rounded-lg hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-          >
-            Edit
-          </button>
-          <button
-            onClick={() => handleDeleteField(field.id)}
-            className="absolute right-20 top-4 font-semibold text-red-500 px-2 py-1 rounded-lg hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            Delete
-          </button>
-
-          {field.type === 'text' && (
+        {/* Field Name & Type */}
+        <div className="mb-6">
+          <label className="block text-md font-semibold mb-2 text-gray-500">Field Name</label>
+          <div className="flex flex-col sm:flex-row">
             <input
               type="text"
-              placeholder={`Enter ${field.label}`}
-              className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required={field.required}
+              placeholder="Field Label (e.g., Name, Email)"
+              value={newField.label || ''}
+              onChange={(e) => setNewField({ ...newField, label: e.target.value })}
+              className="w-full sm:w-8/12 p-2 sm:p-3 mb-4 sm:mr-3 border border-gray-300 rounded-lg text-sm md:text-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          )}
-          {field.type === 'number' && (
-            <input
-              type="number"
-              placeholder={`Enter ${field.label}`}
-              className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required={field.required}
-            />
-          )}
-          {field.type === 'email' && (
-            <input
-              type="email"
-              placeholder={`Enter ${field.label}`}
-              className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required={field.required}
-            />
-          )}
-          {field.type === 'dropdown' && (
-            <select className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required={field.required}>
-              {field.options?.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
-              ))}
+            <select
+              value={newField.type}
+              onChange={(e) => setNewField({ ...newField, type: e.target.value as FieldType })}
+              className="w-full sm:w-4/12 p-2 sm:p-3 mb-4 border border-gray-300 rounded-lg text-sm md:text-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="text">Text</option>
+              <option value="number">Number</option>
+              <option value="dropdown">Dropdown</option>
+              <option value="checkbox">Checkbox</option>
+              <option value="radio">Radio</option>
+              <option value="upload">Upload</option>
+              <option value="datetime">Date/Time</option>
+              <option value="email">Email</option>
             </select>
-          )}
-          {field.type === 'checkbox' && (
-            <input type="checkbox" className="mr-2" required={field.required} />
-          )}
-          {field.type === 'radio' && (
-            field.options?.map((option, index) => (
-              <div key={index} className="flex items-center">
-                <input type="radio" value={option} className="mr-2" required={field.required} />
-                <label>{option}</label>
-              </div>
-            ))
-          )}
-          {field.type === 'upload' && (
-            <input type="file" className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required={field.required} />
-          )}
-          {field.type === 'datetime' && (
-            <input type="datetime-local" className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required={field.required} />
-          )}
-        </div>
-      ))}
+          </div>
 
-      <button
-        onClick={handleSubmit}
-        className="w-full px-6 py-3 mt-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-      >
-        Submit Form
-      </button>
-    </div>
-</>
+          {/* Options Section */}
+          {(newField.type === 'dropdown' || newField.type === 'checkbox' || newField.type === 'radio') && (
+            <>
+              <label className="block text-md font-semibold mb-2 text-gray-500">Options</label>
+              {newField.options?.map((option, index) => (
+                <div key={index} className="flex items-center mb-2">
+                  <input
+                    type="text"
+                    value={option}
+                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                    className="w-full sm:w-10/12 p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2"
+                  />
+                  <button
+                    onClick={() => handleRemoveOption(index)}
+                    className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600 focus:outline-none"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={handleAddOption}
+                className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Add Option
+              </button>
+            </>
+          )}
+
+          <div className="w-full flex justify-end">
+            <button
+              onClick={handleAddField}
+              className="w-full sm:w-1/3 px-6 py-3 mt-4 bg-black text-white text-sm font-semibold rounded-3xl hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {editFieldId ? 'Update Field' : 'Add Field'}
+            </button>
+          </div>
+        </div>
+
+        {/* Display Form Fields */}
+        {fields.map((field) => (
+          <div key={field.id} className="mb-6 relative p-4 bg-gray-50 rounded-lg border border-gray-300">
+            <label className="block text-lg font-semibold mb-2">{field.label} {field.required && <span className="text-red-500">*</span>}</label>
+
+            <button
+              onClick={() => handleEditField(field.id)}
+              className="absolute right-4 top-4 text-black font-semibold hover:text-blue-600"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => handleDeleteField(field.id)}
+              className="absolute right-4 top-12 text-red-500 font-semibold hover:text-red-600"
+            >
+              Delete
+            </button>
+          </div>
+        ))}
+
+        {/* Submit Button */}
+        <div className="w-full flex justify-end">
+          <button
+            onClick={handleSubmit}
+            className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            Save Form
+          </button>
+        </div>
+      </div>
+    </>
   );
 };
 
