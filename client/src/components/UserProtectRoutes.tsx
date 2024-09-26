@@ -2,10 +2,10 @@ import { useSelector } from 'react-redux'
 import { Navigate, Outlet } from 'react-router-dom'
 
 const UserProtectRoutes = () => {
-    const { currentAdmin } = useSelector((state: any)=> state.admin)
-    console.log(currentAdmin)
-    console.log("💕💕💕💕💕💕💕 private route admin ")
-      return currentAdmin ? <Outlet /> : <Navigate to={"/login"} />;
+    const { currentUser } = useSelector((state: any)=> state.user)
+    console.log(currentUser)
+    console.log("💕💕💕💕💕💕💕 private route user")
+      return currentUser ? <Outlet /> : <Navigate to={"/login"} />;
 }
 
 export default UserProtectRoutes

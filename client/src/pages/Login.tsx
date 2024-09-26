@@ -1,10 +1,10 @@
 import { ChangeEvent, useState, FormEvent, useEffect } from "react";
 import { FaEyeSlash, FaRegEye } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+// import { FcGoogle } from "react-icons/fc";
 import { signInSuccess, UserType } from "../redux/userSlice";
 import { Api } from "../utils/api";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -77,7 +77,7 @@ const Login = () => {
       if(res.data.success){
         dispatch(signInSuccess(res.data.data));
         toast("User Succesfully logged in");
-           navigate('/home');
+           navigate('/form_list');
       }else{
         
       }
@@ -94,7 +94,7 @@ const Login = () => {
 
 useEffect(()=>{
   if(currentUser){
-    navigate("/home");
+    navigate("/form_list");
   }
 },[]);
 
@@ -160,17 +160,17 @@ useEffect(()=>{
               <hr className="border-gray-500" />
             </div>
 
-            <div className="bg-white border py-2 w-full rounded-xl cursor-pointer mt-5 flex justify-center items-center gap-2">
+            {/* <div className="bg-white border py-2 w-full rounded-xl cursor-pointer mt-5 flex justify-center items-center gap-2">
               <FcGoogle /> Login with Google
-            </div>
+            </div> */}
 
             <p className="mt-10 text-xs border-b py-4">Forgot your password?</p>
 
             <div className="mt-3 text-xs flex justify-between items-center">
               <p className="">Don't have an account?</p>
-              <button className="py-2 px-5 bg-white border rounded-xl">
+              <Link to={'/signup'} className="py-2 px-5 bg-white border rounded-xl">
                 Signup
-              </button>
+              </Link>
             </div>
           </div>
 

@@ -3,7 +3,7 @@ import { ChangeEvent, useState, FormEvent } from "react";
 import { FaEyeSlash, FaRegEye } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { Api } from "../utils/api";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 type UserSignupDataType = {
@@ -226,15 +226,15 @@ const Signup = () => {
               <hr className="border-gray-500" />
             </div>
 
-            <div className="bg-white border py-2 w-full rounded-xl cursor-pointer mt-5 flex justify-center items-center gap-2">
+            {/* <div className="bg-white border py-2 w-full rounded-xl cursor-pointer mt-5 flex justify-center items-center gap-2">
               <FcGoogle /> Signup with Google
-            </div>
+            </div> */}
 
             <div className="mt-3 text-xs flex justify-between items-center">
               <p>Already have an account?</p>
-              <button className="py-2 px-5 bg-white border rounded-xl">
+              <Link to={'/'} className="py-2 px-5 bg-white border rounded-xl">
                 Login
-              </button>
+              </Link>
             </div>
           </div>
         </div>

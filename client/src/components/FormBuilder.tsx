@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Api } from '../utils/api';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import Header from './Header';
 
 type FieldType = 'text' | 'number' | 'dropdown' | 'checkbox' | 'radio' | 'upload' | 'datetime' | 'email';
 
@@ -20,6 +22,7 @@ const FormBuilder: React.FC = () => {
   const [newField, setNewField] = useState<Partial<Field>>({ type: 'text', label: '', options: ['Untitled'] });
   const [editFieldId, setEditFieldId] = useState<string | null>(null);
   const { currentUser } = useSelector((state: any) => state.user);
+  const navigate = useNavigate();
 
   const handleAddField = () => {
     if (newField.label && newField.type) {
@@ -84,6 +87,7 @@ const FormBuilder: React.FC = () => {
 
     console.log(res.data);
     toast.success('Form submitted successfully!');
+    navigate("/form_list")
   };
 
   const handleDeleteField = (id: string) => {
@@ -117,7 +121,11 @@ const FormBuilder: React.FC = () => {
   };
 
   return (
-    <div className="p-8 max-w-3xl w-full mx-auto bg-slate-100 rounded-xl shadow-lg mt-10">
+<>
+<Header />
+<br />
+<div className="p-8 max-w-3xl w-full mx-auto bg-slate-100 rounded-xl shadow-lg mt-10">
+      
       <h1 className="text-2xl font-bold mb-6 text-center text-gray-700">Form Builder</h1>
       <label htmlFor="form-title" className="block text-md font-semibold mb-2 text-gray-500">Form Title</label>
       <input
@@ -263,6 +271,7 @@ const FormBuilder: React.FC = () => {
         Submit Form
       </button>
     </div>
+</>
   );
 };
 

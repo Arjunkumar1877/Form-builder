@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   getDownloadURL,
   getStorage,
   ref,
   uploadBytesResumable,
-} from 'firebase/storage';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { app } from '../firebase/firebase';
-import axios from 'axios';
-import { Api } from '../utils/api';
+} from "firebase/storage";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { app } from "../firebase/firebase";
+import axios from "axios";
+import { Api } from "../utils/api";
+import { useNavigate } from "react-router-dom";
 
-type FieldType = 'text' | 'number' | 'dropdown' | 'checkbox' | 'radio' | 'upload' | 'datetime' | 'email';
+type FieldType =
+  | "text"
+  | "number"
+  | "dropdown"
+  | "checkbox"
+  | "radio"
+  | "upload"
+  | "datetime"
+  | "email";
 
 interface Field {
   id: string;
@@ -31,17 +40,20 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
   const [formValues, setFormValues] = useState<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [file, setFile] = useState<File | null>(null);
-  const [imageUploadProgress, setImageUploadProgress] = useState<number | null>(null);
+  const [imageUploadProgress, setImageUploadProgress] = useState<number | null>(
+    null
+  );
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleChange = (id: string, value: any) => {
     setFormValues((prev) => ({ ...prev, [id]: value }));
-    setErrors((prev) => ({ ...prev, [id]: '' }));
+    setErrors((prev) => ({ ...prev, [id]: "" }));
   };
 
   const handleUploadFile = async (): Promise<string | null> => {
     if (!file) {
-      setImageUploadError('Please select an image or PDF');
+      setImageUploadError("Please select an image or PDF");
       return null;
     }
 
@@ -53,13 +65,14 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
 
     return new Promise<string>((resolve, reject) => {
       uploadTask.on(
-        'state_changed',
+        "state_changed",
         (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           setImageUploadProgress(Math.round(progress));
         },
         (error) => {
-          setImageUploadError('File upload failed');
+          setImageUploadError("File upload failed");
           setImageUploadProgress(null);
           reject(error);
         },
@@ -83,24 +96,36 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
         newErrors[field.id] = `${field.label} is required`;
       } else {
         switch (field.type) {
-          case 'email':
+          case "email":
             if (fieldValue && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fieldValue)) {
               newErrors[field.id] = `Invalid email format for ${field.label}`;
             }
             break;
-          case 'number':
+          case "number":
             if (fieldValue !== undefined && isNaN(Number(fieldValue))) {
               newErrors[field.id] = `${field.label} must be a valid number`;
             }
             break;
-          case 'upload':
-            if (file && !['image/jpeg', 'image/png', 'application/pdf'].includes(file.type)) {
-              newErrors[field.id] = `Only JPEG, PNG images, and PDF files are allowed for ${field.label}`;
+          case "upload":
+            if (
+              file &&
+              !["image/jpeg", "image/png", "application/pdf"].includes(
+                file.type
+              )
+            ) {
+              newErrors[
+                field.id
+              ] = `Only JPEG, PNG images, and PDF files are allowed for ${field.label}`;
             }
             break;
-          case 'datetime':
-            if (fieldValue && new Date(fieldValue).toString() === 'Invalid Date') {
-              newErrors[field.id] = `${field.label} must be a valid date and time`;
+          case "datetime":
+            if (
+              fieldValue &&
+              new Date(fieldValue).toString() === "Invalid Date"
+            ) {
+              newErrors[
+                field.id
+              ] = `${field.label} must be a valid date and time`;
             }
             break;
           default:
@@ -124,10 +149,11 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
         // Transform formValues into an array of objects
         const finalData = fields.map((field) => ({
           key: field.label,
-          value: field.type === 'upload' ? uploadedFileUrl : formValues[field.id],
+          value:
+            field.type === "upload" ? uploadedFileUrl : formValues[field.id],
         }));
 
-        console.log('Form submitted successfully:', finalData);
+        console.log("Form submitted successfully:", finalData);
 
         const res = await axios.post(`${Api}/user/add_response`, {
           formId,
@@ -135,55 +161,73 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
         });
 
         console.log(res.data);
-        toast.success('Form submitted successfully!'); // Notify user of success
+        toast.success("Form submitted successfully!"); // Notify user of success
+        navigate("/success", {
+          state: { responses: finalData },
+          replace: true,
+        });
       } catch (error) {
-        console.error('Form submission error:', error);
-        toast.error('Error submitting form. Please try again later.'); // Notify user of error
+        console.error("Form submission error:", error);
+        toast.error("Error submitting form. Please try again later."); // Notify user of error
       }
     }
   };
 
   return (
-    <div className="p-6 max-w-lg mx-auto bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">{title}</h2>
+    <div className="p-6 max-w-lg mx-auto bg-slate-100 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">
+        {title}
+      </h2>
       <form onSubmit={handleSubmit}>
         {fields.map((field) => (
           <div key={field.id} className="mb-4">
-            <label className="block text-lg font-semibold mb-2 text-gray-700">{field.label}</label>
-            {field.type === 'text' && (
+            <label className="block text-lg font-semibold mb-2 text-gray-700">
+              {field.label}
+            </label>
+            {field.type === "text" && (
               <input
                 type="text"
-                className={`w-full p-2 border ${errors[field.id] ? 'border-red-500' : 'border-gray-300'} rounded transition duration-150`}
+                className={`w-full p-2 border ${
+                  errors[field.id] ? "border-red-500" : "border-gray-300"
+                } rounded transition duration-150`}
                 placeholder={`Enter ${field.label}`}
                 onChange={(e) => handleChange(field.id, e.target.value)}
               />
             )}
-            {field.type === 'number' && (
+            {field.type === "number" && (
               <input
                 type="number"
-                className={`w-full p-2 border ${errors[field.id] ? 'border-red-500' : 'border-gray-300'} rounded transition duration-150`}
+                className={`w-full p-2 border ${
+                  errors[field.id] ? "border-red-500" : "border-gray-300"
+                } rounded transition duration-150`}
                 placeholder={`Enter ${field.label}`}
                 onChange={(e) => handleChange(field.id, e.target.value)}
               />
             )}
-            {field.type === 'email' && (
+            {field.type === "email" && (
               <input
                 type="email"
-                className={`w-full p-2 border ${errors[field.id] ? 'border-red-500' : 'border-gray-300'} rounded transition duration-150`}
+                className={`w-full p-2 border ${
+                  errors[field.id] ? "border-red-500" : "border-gray-300"
+                } rounded transition duration-150`}
                 placeholder={`Enter ${field.label}`}
                 onChange={(e) => handleChange(field.id, e.target.value)}
               />
             )}
-            {field.type === 'datetime' && (
+            {field.type === "datetime" && (
               <input
                 type="datetime-local"
-                className={`w-full p-2 border ${errors[field.id] ? 'border-red-500' : 'border-gray-300'} rounded transition duration-150`}
+                className={`w-full p-2 border ${
+                  errors[field.id] ? "border-red-500" : "border-gray-300"
+                } rounded transition duration-150`}
                 onChange={(e) => handleChange(field.id, e.target.value)}
               />
             )}
-            {field.type === 'dropdown' && (
+            {field.type === "dropdown" && (
               <select
-                className={`w-full p-2 border ${errors[field.id] ? 'border-red-500' : 'border-gray-300'} rounded transition duration-150`}
+                className={`w-full p-2 border ${
+                  errors[field.id] ? "border-red-500" : "border-gray-300"
+                } rounded transition duration-150`}
                 onChange={(e) => handleChange(field.id, e.target.value)}
               >
                 <option value="">Select {field.label}</option>
@@ -194,7 +238,7 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
                 ))}
               </select>
             )}
-            {field.type === 'checkbox' && field.options && (
+            {field.type === "checkbox" && field.options && (
               <div>
                 {field.options.map((option) => (
                   <label key={option} className="block mb-2">
@@ -202,11 +246,21 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
                       type="checkbox"
                       value={option}
                       onChange={(e) => {
-                        const currentValues = formValues[field.id] ? formValues[field.id].split(', ') : [];
+                        const currentValues = formValues[field.id]
+                          ? formValues[field.id].split(", ")
+                          : [];
                         if (e.target.checked) {
-                          handleChange(field.id, [...currentValues, option].join(', '));
+                          handleChange(
+                            field.id,
+                            [...currentValues, option].join(", ")
+                          );
                         } else {
-                          handleChange(field.id, currentValues.filter((v: any) => v !== option).join(', '));
+                          handleChange(
+                            field.id,
+                            currentValues
+                              .filter((v: any) => v !== option)
+                              .join(", ")
+                          );
                         }
                       }}
                     />
@@ -215,7 +269,7 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
                 ))}
               </div>
             )}
-            {field.type === 'radio' && field.options && (
+            {field.type === "radio" && field.options && (
               <div>
                 {field.options.map((option) => (
                   <label key={option} className="block mb-2">
@@ -230,7 +284,7 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
                 ))}
               </div>
             )}
-            {field.type === 'upload' && (
+            {field.type === "upload" && (
               <div>
                 <input
                   type="file"
@@ -242,14 +296,16 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
                   }}
                 />
                 {imageUploadProgress && (
-                  <div>
-                    Uploading: {imageUploadProgress}%
-                  </div>
+                  <div>Uploading: {imageUploadProgress}%</div>
                 )}
-                {imageUploadError && <p className="text-red-500">{imageUploadError}</p>}
+                {imageUploadError && (
+                  <p className="text-red-500">{imageUploadError}</p>
+                )}
               </div>
             )}
-            {errors[field.id] && <p className="text-red-500">{errors[field.id]}</p>}
+            {errors[field.id] && (
+              <p className="text-red-500">{errors[field.id]}</p>
+            )}
           </div>
         ))}
         <button

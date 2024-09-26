@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { Api } from "../utils/api";
 import FormDisplay from "../components/FomDisplay";
+import Header from "../components/Header";
 
 type FieldType = 'text' | 'number' | 'dropdown' | 'checkbox' | 'radio' | 'upload' | 'datetime' | 'email';
 
@@ -26,8 +27,10 @@ interface FormData {
 const Form = () => {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
-  const formId = query.get('formId') || "66f56a5ca73d0a037bcacce5";
-  const creatorId = query.get('creatorId') || "66f54dd61a343527bcfa763a";
+  const formId = query.get('formId') || "66f56a5ca73d0a037bcacce5"; 
+  const creatorId = query.get('creatorId');
+
+  console.log(formId, "  ", creatorId)
 
   const [formData, setFormData] = useState<FormData | null>(null);
   const [error, setError] = useState<string | null>(null); 
@@ -55,6 +58,7 @@ const Form = () => {
 
   return (
     <div>
+      <Header />
       {loading && <p>Loading form...</p>}
       {error && <p className="text-red-500">{error}</p>} 
       {!loading && !error && formData && (
