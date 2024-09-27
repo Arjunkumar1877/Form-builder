@@ -1,7 +1,6 @@
 import axios from "axios";
 import { ChangeEvent, useState, FormEvent, useEffect } from "react";
 import { FaEyeSlash, FaRegEye } from "react-icons/fa";
-// import { FcGoogle } from "react-icons/fc";
 import { Api } from "../utils/api";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -60,13 +59,11 @@ const Signup = () => {
 
       console.log(res.data)
       if(res.data.success){
-        toast("User data saved sucessfully.")
+        toast("User data saved successfully.")
        navigate('/login');
       }else{
-        toast("User already exist");
+        toast("User already exists");
       }
-
-
     } else {
       console.log("Validation Errors: ", dataError);
     }
@@ -82,7 +79,6 @@ const Signup = () => {
     ) {
       valid = false;
     }
-
     return valid;
   };
 
@@ -131,130 +127,133 @@ const Signup = () => {
       navigate("/form_list");
     }
   
-    const loadserver = async()=>{
-     const res = await axios(`${Api}/user/loading`);
-     if(res.data){
-      console.log("server loaded on render platform....");
-     }else{
-      console.log("server is still loading on the render...");
-     }
+    const loadserver = async()=> {
+      const res = await axios(`${Api}/user/loading`);
+      if(res.data){
+        console.log("server loaded on render platform....");
+      }else{
+        console.log("server is still loading on the render...");
+      }
     }
-  loadserver()
+    loadserver();
   
-  },[]);
-
+  },[currentUser, navigate]);
 
   return (
-    <div className="">
-      <section className="bg-gray-50 min-h-screen flex items-center justify-center">
-        <div className="bg-gray-100 flex rounded-2xl shadow-lg max-w-3xl p-5">
-          <div className="w-1/2">
-            <img
-              className="hidden md:block rounded-2xl"
-              src="https://images.unsplash.com/photo-1663507897721-c6c216a8fb28?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              alt=""
-            />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <section className="bg-white shadow-lg rounded-2xl max-w-3xl flex flex-col md:flex-row w-full overflow-hidden">
+        {/* Left Side - Image */}
+        <div className="hidden md:block md:w-1/2">
+          <img
+            className="h-full w-full object-cover"
+            src="https://images.unsplash.com/photo-1663507897721-c6c216a8fb28?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="Signup"
+          />
+        </div>
+
+        {/* Right Side - Form */}
+        <div className="w-full md:w-1/2 p-8">
+          <h1 className="text-2xl font-bold text-[#0A1612] mb-6">Signup</h1>
+
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+            <div>
+              <input
+                onChange={handleChangeData}
+                type="text"
+                name="name"
+                className="p-3 rounded-xl border w-full"
+                placeholder="Name"
+                value={userData.name}
+              />
+              {dataError.name && (
+                <p className="text-red-500 text-sm mt-1">{dataError.name}</p>
+              )}
+            </div>
+
+            <div>
+              <input
+                onChange={handleChangeData}
+                type="email"
+                name="email"
+                className="p-3 rounded-xl border w-full"
+                placeholder="Email"
+                value={userData.email}
+              />
+              {dataError.email && (
+                <p className="text-red-500 text-sm mt-1">{dataError.email}</p>
+              )}
+            </div>
+
+            <div className="relative">
+              <input
+                onChange={handleChangeData}
+                type={showPassword ? "text" : "password"}
+                name="password"
+                className="p-3 rounded-xl border w-full"
+                placeholder="Password"
+                value={userData.password}
+              />
+              {dataError.password && (
+                <p className="text-red-500 text-sm mt-1">{dataError.password}</p>
+              )}
+              {showPassword ? (
+                <FaEyeSlash
+                  onClick={handleShowPassword}
+                  className="absolute top-4 right-4 cursor-pointer"
+                />
+              ) : (
+                <FaRegEye
+                  onClick={handleShowPassword}
+                  className="absolute top-4 right-4 cursor-pointer"
+                />
+              )}
+            </div>
+
+            <div className="relative">
+              <input
+                onChange={handleChangeData}
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                className="p-3 rounded-xl border w-full"
+                placeholder="Confirm Password"
+                value={userData.confirmPassword}
+              />
+              {dataError.confirmPassword && (
+                <p className="text-red-500 text-sm mt-1">
+                  {dataError.confirmPassword}
+                </p>
+              )}
+              {showConfirmPassword ? (
+                <FaEyeSlash
+                  onClick={handleShowConfirmPassword}
+                  className="absolute top-4 right-4 cursor-pointer"
+                />
+              ) : (
+                <FaRegEye
+                  onClick={handleShowConfirmPassword}
+                  className="absolute top-4 right-4 cursor-pointer"
+                />
+              )}
+            </div>
+
+            <button className="bg-[#0A1612] rounded-xl text-white py-3 transition-transform duration-300 hover:scale-105">
+              Signup
+            </button>
+          </form>
+
+          <div className="my-6 grid grid-cols-3 items-center text-gray-600">
+            <hr className="border-gray-500" />
+            <p className="text-center">OR</p>
+            <hr className="border-gray-500" />
           </div>
 
-          <div className="md:w-1/2 px-16">
-            <h1 className="text-[#0A1612] font-bold text-2xl">Signup</h1>
+          <GoogleAuth />
 
-            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-              <div>
-                <input
-                  onChange={handleChangeData}
-                  type="text"
-                  name="name"
-                  className="p-2 rounded-xl border mt-8 w-full"
-                  placeholder="Name"
-                />
-                {dataError.name && (
-                  <p className="text-red-500 text-sm">{dataError.name}</p>
-                )}
-              </div>
-
-              <div>
-                <input
-                  onChange={handleChangeData}
-                  type="text"
-                  name="email"
-                  className="p-2 rounded-xl border w-full"
-                  placeholder="Email"
-                />
-                {dataError.email && (
-                  <p className="text-red-500 text-sm">{dataError.email}</p>
-                )}
-              </div>
-
-              <div className="relative">
-                <input
-                  onChange={handleChangeData}
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  className="p-2 rounded-xl border w-full"
-                  placeholder="Password"
-                />
-                {dataError.password && (
-                  <p className="text-red-500 text-sm">{dataError.password}</p>
-                )}
-                {showPassword ? (
-                  <FaEyeSlash
-                    onClick={handleShowPassword}
-                    className="absolute top-3 right-3 cursor-pointer"
-                  />
-                ) : (
-                  <FaRegEye
-                    onClick={handleShowPassword}
-                    className="absolute top-3 right-3 cursor-pointer"
-                  />
-                )}
-              </div>
-
-              <div className="relative">
-                <input
-                  onChange={handleChangeData}
-                  type={showConfirmPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  className="p-2 rounded-xl border w-full"
-                  placeholder="Confirm Password"
-                />
-                {dataError.confirmPassword && (
-                  <p className="text-red-500 text-sm">
-                    {dataError.confirmPassword}
-                  </p>
-                )}
-                {showConfirmPassword ? (
-                  <FaEyeSlash
-                    onClick={handleShowConfirmPassword}
-                    className="absolute top-3 right-3 cursor-pointer"
-                  />
-                ) : (
-                  <FaRegEye
-                    onClick={handleShowConfirmPassword}
-                    className="absolute top-3 right-3 cursor-pointer"
-                  />
-                )}
-              </div>
-
-              <button className="bg-[#0A1612] rounded-xl text-white py-2  transition-transform duration-300 hover:scale-105">
-                Signup
-              </button>
-            </form>
-
-            <div className="mt-10 grid grid-cols-3 items-center text-gray-600 ">
-              <hr className="border-gray-500" />
-              <p className="text-center">OR</p>
-              <hr className="border-gray-500" />
-            </div>
-
-       <GoogleAuth />
-
-            <div className="mt-3 text-xs flex justify-between items-center">
-              <p>Already have an account?</p>
-              <Link to={'/'} className="py-2 px-5 bg-white border rounded-xl">
-                Login
-              </Link>
-            </div>
+          <div className="mt-6 text-sm text-gray-700 flex justify-between items-center">
+            <p>Already have an account?</p>
+            <Link to={'/'} className="py-2 px-5 bg-white border rounded-xl hover:bg-gray-200">
+              Login
+            </Link>
           </div>
         </div>
       </section>
