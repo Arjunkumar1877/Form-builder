@@ -3,8 +3,8 @@ import axios from 'axios';
 import { Api } from '../utils/api';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
-import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer and toast
-import 'react-toastify/dist/ReactToastify.css'; // Import CSS for toast
+import { ToastContainer, toast } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
 interface ResponseData {
   _id: string;
@@ -36,6 +36,8 @@ const FormResponsesDisplay = () => {
 
     fetchResponses();
   }, [formId]);
+
+  
 
   const handleCopyLink = (url: string) => {
     navigator.clipboard.writeText(url).then(() => {
@@ -71,7 +73,6 @@ const FormResponsesDisplay = () => {
                   <div key={_id} className="mb-2 flex items-center">
                     <strong className="mr-2">{key}:</strong>
                     {typeof value === 'string' && (value.startsWith('https://') || value.startsWith('http')) ? (
-                      // Skip displaying the value if it's an image URL
                       <div className="flex items-center mt-1">
                         <img src={value} alt={key} className="w-12 h-12 rounded-md object-cover mr-2" />
                         <button
@@ -82,7 +83,6 @@ const FormResponsesDisplay = () => {
                         </button>
                       </div>
                     ) : (
-                      // Display all other values
                       <span className="text-gray-800">{value}</span>
                     )}
                   </div>

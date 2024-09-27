@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { Api } from '../utils/api';
-import { toast } from 'react-toastify'; // Import toast
-import Swal from 'sweetalert2'; // Import SweetAlert
+import { toast } from 'react-toastify'; 
+import Swal from 'sweetalert2'; 
 
 interface Field {
   _id: string;

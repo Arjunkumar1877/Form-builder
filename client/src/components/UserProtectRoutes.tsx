@@ -5,7 +5,7 @@ const UserProtectRoutes = () => {
     const { currentUser } = useSelector((state: any)=> state.user)
     console.log(currentUser)
     console.log("💕💕💕💕💕💕💕 private route user")
-      return currentUser ? <Outlet /> : <Navigate to={"/login"} />;
+      return currentUser ? <Outlet /> : <Navigate to={"/"} />;
 }
 
 export default UserProtectRoutes
