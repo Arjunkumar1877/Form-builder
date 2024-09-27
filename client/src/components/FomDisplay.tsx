@@ -62,7 +62,7 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
     const fileName = `${new Date().getTime()}-${file.name}`;
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, file);
-
+   
     return new Promise<string>((resolve, reject) => {
       uploadTask.on(
         "state_changed",
@@ -70,6 +70,7 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           setImageUploadProgress(Math.round(progress));
+          console.log(progress)
         },
         (error) => {
           setImageUploadError("File upload failed");
@@ -88,11 +89,64 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
     });
   };
 
+  // const validate = () => {
+  //   const newErrors: Record<string, string> = {};
+  //   fields.forEach((field) => {
+  //     const fieldValue = formValues[field.id];
+  //     if (field.required && !fieldValue) {
+  //       newErrors[field.id] = `${field.label} is required`;
+  //     } else {
+  //       switch (field.type) {
+  //         case "email":
+  //           if (fieldValue && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fieldValue)) {
+  //             newErrors[field.id] = `Invalid email format for ${field.label}`;
+  //           }
+  //           break;
+  //         case "number":
+  //           if (fieldValue !== undefined && isNaN(Number(fieldValue))) {
+  //             newErrors[field.id] = `${field.label} must be a valid number`;
+  //           }
+  //           break;
+  //         case "upload":
+  //           if (
+  //             file &&
+  //             !["image/jpeg", "image/png", "application/pdf"].includes(
+  //               file.type
+  //             )
+  //           ) {
+  //             newErrors[
+  //               field.id
+  //             ] = `Only JPEG, PNG images, and PDF files are allowed for ${field.label}`;
+  //           }
+  //           break;
+  //         case "datetime":
+  //           if (
+  //             fieldValue &&
+  //             new Date(fieldValue).toString() === "Invalid Date"
+  //           ) {
+  //             newErrors[
+  //               field.id
+  //             ] = `${field.label} must be a valid date and time`;
+  //           }
+  //           break;
+  //         default:
+  //           break;
+  //       }
+  //     }
+  //   });
+  //   setErrors(newErrors);
+  //   return Object.keys(newErrors).length === 0;
+  // };
+
+
   const validate = () => {
     const newErrors: Record<string, string> = {};
+    
     fields.forEach((field) => {
       const fieldValue = formValues[field.id];
-      if (field.required && !fieldValue) {
+      
+      if (field.required && !fieldValue && field.type !== "upload") {
+        // Skip file validation here; handle it separately
         newErrors[field.id] = `${field.label} is required`;
       } else {
         switch (field.type) {
@@ -106,26 +160,9 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
               newErrors[field.id] = `${field.label} must be a valid number`;
             }
             break;
-          case "upload":
-            if (
-              file &&
-              !["image/jpeg", "image/png", "application/pdf"].includes(
-                file.type
-              )
-            ) {
-              newErrors[
-                field.id
-              ] = `Only JPEG, PNG images, and PDF files are allowed for ${field.label}`;
-            }
-            break;
           case "datetime":
-            if (
-              fieldValue &&
-              new Date(fieldValue).toString() === "Invalid Date"
-            ) {
-              newErrors[
-                field.id
-              ] = `${field.label} must be a valid date and time`;
+            if (fieldValue && new Date(fieldValue).toString() === "Invalid Date") {
+              newErrors[field.id] = `${field.label} must be a valid date and time`;
             }
             break;
           default:
@@ -133,9 +170,22 @@ const FormDisplay: React.FC<FormDisplayProps> = ({ title, fields, formId }) => {
         }
       }
     });
+    
+    // Handle file validation separately
+    if (fields.some((field) => field.type === "upload" && field.required)) {
+      if (!file) {
+        newErrors["file"] = `File is required`;
+      } else if (!["image/jpeg", "image/png", "application/pdf"].includes(file.type)) {
+        newErrors["file"] = `Only JPEG, PNG images, and PDF files are allowed`;
+      }
+    }
+  
     setErrors(newErrors);
+    
     return Object.keys(newErrors).length === 0;
   };
+  
+
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
